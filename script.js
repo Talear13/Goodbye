@@ -35,6 +35,10 @@ function downloadFile(filename, text) {
   document.body.removeChild(element);
 }
 
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
+}
+
 let clicked = false;
 logo.addEventListener('click', async () => {
   if (clicked) return;
@@ -56,59 +60,80 @@ logo.addEventListener('click', async () => {
   terminalOutput.append(']');
   createCursor();
 
-  // CREATE MOBILE-COMPATIBLE HIDDEN TEXT INPUT
-  const bracketInput = document.createElement('input');
-  bracketInput.type = 'text';
-  bracketInput.autocapitalize = 'off';
-  bracketInput.autocorrect = 'off';
-  bracketInput.spellcheck = false;
-  bracketInput.style.position = 'absolute';
-  bracketInput.style.opacity = '0.01'; // Must be >0 for mobile events to fire
-  bracketInput.style.fontSize = '16px'; // Prevents iOS zoom on focus
-  bracketInput.style.left = '0';
-  bracketInput.style.top = '0';
-  bracketInput.style.width = '100%';
-  bracketInput.style.zIndex = '10';
+  if (isMobile()) {
+    // Mobile: Create a hidden input to get keyboard input
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'text';
+    hiddenInput.autocapitalize = 'off';
+    hiddenInput.autocorrect = 'off';
+    hiddenInput.spellcheck = false;
+    hiddenInput.style.position = 'fixed';
+    hiddenInput.style.opacity = 0;
+    hiddenInput.style.height = '1px';
+    hiddenInput.style.width = '1px';
+    hiddenInput.style.left = '-9999px';
+    document.body.appendChild(hiddenInput);
+    hiddenInput.focus();
 
-  document.body.appendChild(bracketInput);
-  bracketInput.focus();
+    hiddenInput.addEventListener('input', () => {
+      inputSpan.textContent = hiddenInput.value.toUpperCase();
+    });
 
-  function updateBracketDisplay() {
-    inputSpan.textContent = bracketInput.value.toUpperCase();
+    hiddenInput.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const answer = hiddenInput.value.toLowerCase();
+        hiddenInput.remove();
+        if (cursorElem) cursorElem.remove();
+        terminalOutput.textContent += '\n';
+        handleAnswer(answer, inputSpan);
+      }
+    });
+
+  } else {
+    // PC: listen for keydown, update inputSpan directly
+    let answer = '';
+
+    function onUserType(e) {
+      if (e.key === 'Enter') {
+        window.removeEventListener('keydown', onUserType);
+        if (cursorElem) cursorElem.remove();
+        terminalOutput.textContent += '\n';
+        handleAnswer(answer.toLowerCase(), inputSpan);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        answer = answer.slice(0, -1);
+        inputSpan.textContent = answer.toUpperCase();
+      } else if (e.key.length === 1) {
+        answer += e.key;
+        inputSpan.textContent = answer.toUpperCase();
+      }
+    }
+
+    window.addEventListener('keydown', onUserType);
+  }
+});
+
+async function handleAnswer(input, inputSpan) {
+  const loveWords = ['love', 'ily', 'i love you', 'i love u', 'i forgive', 'ilyt', 'i like you', 'luv', 'lab'];
+  const hateWords = ['never', "don't", "dont", 'wont', 'won’t', 'hate', "can't", 'no', "won't"];
+  const goodbyeWords = ['goodbye', 'bye', 'farewell'];
+
+  if (loveWords.some(word => input.includes(word))) {
+    await typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
+  } else if (hateWords.some(word => input.includes(word))) {
+    await typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
+  } else if (goodbyeWords.some(word => input.includes(word))) {
+    await typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
+  } else {
+    createCursor();
   }
 
-  bracketInput.addEventListener('input', updateBracketDisplay);
-  bracketInput.addEventListener('keyup', updateBracketDisplay);
-
-  bracketInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const answer = bracketInput.value.toLowerCase();
-      bracketInput.remove();
-      if (cursorElem) cursorElem.remove();
-      terminalOutput.textContent += '\n';
-
-      const loveWords = ['love', 'ily', 'i love you', 'i love u', 'i forgive', 'ilyt', 'i like you', 'luv', 'lab'];
-      const hateWords = ['never', "don't", "dont", 'wont', 'won’t', 'hate', "can't", 'no', "won't"];
-      const goodbyeWords = ['goodbye', 'bye', 'farewell'];
-
-      if (loveWords.some(word => answer.includes(word))) {
-        typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
-      } else if (hateWords.some(word => answer.includes(word))) {
-        typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
-      } else if (goodbyeWords.some(word => answer.includes(word))) {
-        typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
-      } else {
-        createCursor();
-      }
-
-      setTimeout(async () => {
-        await sleep(2000);
-        glitchOut();
-      }, 1500);
-    }
-  });
-});
+  setTimeout(async () => {
+    await sleep(2000);  // pause before glitch
+    glitchOut();
+  }, 1500);
+}
 
 async function glitchOut() {
   terminalOutput.textContent = '';
