@@ -55,9 +55,12 @@ logo.addEventListener('click', async () => {
   terminalOutput.append(']');
   createCursor();
 
-  // Create hidden input field to trigger mobile keyboard
+  // Create & focus hidden input
   const hiddenInput = document.createElement('input');
   hiddenInput.type = 'text';
+  hiddenInput.autocapitalize = 'off';
+  hiddenInput.autocorrect = 'off';
+  hiddenInput.spellcheck = false;
   hiddenInput.style.position = 'absolute';
   hiddenInput.style.opacity = '0';
   hiddenInput.style.height = '0';
@@ -66,9 +69,17 @@ logo.addEventListener('click', async () => {
   hiddenInput.focus();
 
   let answer = '';
-  function onUserType(e) {
+
+  // Real-time listener for mobile typing
+  hiddenInput.addEventListener('input', () => {
+    answer = hiddenInput.value;
+    inputSpan.textContent = answer.toUpperCase();
+  });
+
+  // Detect Enter key
+  hiddenInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      window.removeEventListener('keydown', onUserType);
+      hiddenInput.remove(); // clean up
       if (cursorElem) cursorElem.remove();
       terminalOutput.textContent += '\n';
 
@@ -91,19 +102,8 @@ logo.addEventListener('click', async () => {
         await sleep(2000);
         glitchOut();
       }, 1500);
-    } else if (e.key === 'Backspace') {
-      e.preventDefault();
-      answer = answer.slice(0, -1);
-      inputSpan.textContent = answer.toUpperCase();
-      hiddenInput.value = answer;
-    } else if (e.key.length === 1) {
-      answer += e.key;
-      inputSpan.textContent = answer.toUpperCase();
-      hiddenInput.value = answer;
     }
-  }
-
-  window.addEventListener('keydown', onUserType);
+  });
 });
 
 async function glitchOut() {
