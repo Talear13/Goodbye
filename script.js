@@ -130,7 +130,7 @@ async function handleAnswer(input, inputSpan) {
   }
 
   setTimeout(async () => {
-    await sleep(2000);  // pause before glitch
+    await sleep(2500);  // pause before glitch
     glitchOut();
   }, 1500);
 }
