@@ -48,7 +48,7 @@ logo.addEventListener('click', async () => {
   terminalScreen.classList.remove('hidden');
   terminalOutput.textContent = '';
 
-  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU:(", 90, 'cursor');
+  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 90, 'cursor');
   await sleep(1000);
   terminalOutput.textContent += '\n';
   await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90, 'cursor');
@@ -168,7 +168,7 @@ async function glitchOut() {
         setTimeout(async () => {
           terminalOutput.innerHTML = '';
           await typeWithCursor("THIS DOMAIN HAS BEEN SEIZED BY THE NATIONAL CYBERCRIME BUREAU.\n\nALL LOGS HAVE BEEN ARCHIVED AND REMOVED FOR INVESTIGATION.", 40);
-          downloadFile("remembrance.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
+          downloadFile("Orphan.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
           resolve();
         }, 500);
         return;
