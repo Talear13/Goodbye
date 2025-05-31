@@ -20,7 +20,7 @@ function createCursor(blinkingClass = 'cursor', cursorText = '<?>') {
 async function typeWithCursor(text, speed = 90, cursorClass = 'cursor', cursorText = '<?>') {
   if (cursorElem) cursorElem.remove();
   for (let i = 0; i < text.length; i++) {
-    terminalOutput.append(text[i]);
+    terminalOutput.textContent += text[i];
     await sleep(speed);
   }
   createCursor(cursorClass, cursorText);
@@ -42,70 +42,68 @@ logo.addEventListener('click', async () => {
 
   homeScreen.classList.add('hidden');
   terminalScreen.classList.remove('hidden');
-  terminalOutput.innerHTML = '';
+  terminalOutput.textContent = '';
 
-  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 90);
+  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU:(", 90, 'cursor');
   await sleep(1000);
-  terminalOutput.append('\n');
-  await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90);
-  terminalOutput.append('\n>>[');
+  terminalOutput.textContent += '\n';
+  await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90, 'cursor');
+  terminalOutput.textContent += '\n>>[';
 
   const inputSpan = document.createElement('span');
   inputSpan.id = 'user-input';
   terminalOutput.appendChild(inputSpan);
-
   terminalOutput.append(']');
   createCursor();
 
-  // 🔥 CREATE & FOCUS HIDDEN INPUT
-  const hiddenInput = document.createElement('input');
-  hiddenInput.type = 'text';
-  hiddenInput.autocapitalize = 'off';
-  hiddenInput.autocorrect = 'off';
-  hiddenInput.spellcheck = false;
-  hiddenInput.style.position = 'absolute';
-  hiddenInput.style.opacity = '0';
-  hiddenInput.style.height = '0';
-  hiddenInput.style.fontSize = '16px'; // prevent iOS zoom
-  document.body.appendChild(hiddenInput);
-  hiddenInput.focus();
+  // CREATE MOBILE-COMPATIBLE HIDDEN TEXT INPUT
+  const bracketInput = document.createElement('input');
+  bracketInput.type = 'text';
+  bracketInput.autocapitalize = 'off';
+  bracketInput.autocorrect = 'off';
+  bracketInput.spellcheck = false;
+  bracketInput.style.position = 'absolute';
+  bracketInput.style.opacity = '0.01'; // Must be >0 for mobile events to fire
+  bracketInput.style.fontSize = '16px'; // Prevents iOS zoom on focus
+  bracketInput.style.left = '0';
+  bracketInput.style.top = '0';
+  bracketInput.style.width = '100%';
+  bracketInput.style.zIndex = '10';
 
-  // 🔁 KEEP FOCUS (iOS / Android safety)
-  setInterval(() => {
-    if (document.activeElement !== hiddenInput) hiddenInput.focus();
-  }, 1000);
+  document.body.appendChild(bracketInput);
+  bracketInput.focus();
 
-  let answer = '';
+  function updateBracketDisplay() {
+    inputSpan.textContent = bracketInput.value.toUpperCase();
+  }
 
-  hiddenInput.addEventListener('input', () => {
-    answer = hiddenInput.value;
-    const inputSpan = document.getElementById('user-input');
-    if (inputSpan) inputSpan.textContent = answer.toUpperCase();
-  });
+  bracketInput.addEventListener('input', updateBracketDisplay);
+  bracketInput.addEventListener('keyup', updateBracketDisplay);
 
-  hiddenInput.addEventListener('keydown', (e) => {
+  bracketInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      hiddenInput.remove();
+      e.preventDefault();
+      const answer = bracketInput.value.toLowerCase();
+      bracketInput.remove();
       if (cursorElem) cursorElem.remove();
-      terminalOutput.append('\n');
+      terminalOutput.textContent += '\n';
 
-      const input = answer.toLowerCase();
       const loveWords = ['love', 'ily', 'i love you', 'i love u', 'i forgive', 'ilyt', 'i like you', 'luv', 'lab'];
       const hateWords = ['never', "don't", "dont", 'wont', 'won’t', 'hate', "can't", 'no', "won't"];
       const goodbyeWords = ['goodbye', 'bye', 'farewell'];
 
-      if (loveWords.some(word => input.includes(word))) {
+      if (loveWords.some(word => answer.includes(word))) {
         typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
-      } else if (hateWords.some(word => input.includes(word))) {
-        typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90);
-      } else if (goodbyeWords.some(word => input.includes(word))) {
+      } else if (hateWords.some(word => answer.includes(word))) {
+        typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
+      } else if (goodbyeWords.some(word => answer.includes(word))) {
         typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
       } else {
         createCursor();
       }
 
       setTimeout(async () => {
-        await sleep(2500);
+        await sleep(2000);
         glitchOut();
       }, 1500);
     }
@@ -113,7 +111,7 @@ logo.addEventListener('click', async () => {
 });
 
 async function glitchOut() {
-  terminalOutput.innerHTML = '';
+  terminalOutput.textContent = '';
   await typeWithCursor("GOODBYE.", 630);
 
   const glitchText = "GOODBYE.";
