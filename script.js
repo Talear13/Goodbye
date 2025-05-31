@@ -4,6 +4,7 @@ const terminalScreen = document.getElementById('terminal-screen');
 const terminalOutput = document.getElementById('terminal-output');
 
 let cursorElem = null;
+let hiddenInput = null;
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -35,10 +36,6 @@ function downloadFile(filename, text) {
   document.body.removeChild(element);
 }
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
-}
-
 let clicked = false;
 logo.addEventListener('click', async () => {
   if (clicked) return;
@@ -48,92 +45,94 @@ logo.addEventListener('click', async () => {
   terminalScreen.classList.remove('hidden');
   terminalOutput.textContent = '';
 
-  await typeWithCursor(">>THIS IS TALEA SPEAKING. I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 100, 'cursor');
-  await sleep(1010);
+  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU:(", 90, 'cursor');
+  await sleep(1000);
   terminalOutput.textContent += '\n';
   await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90, 'cursor');
-  terminalOutput.textContent += '\n>>[';
+  terminalOutput.textContent += '\n>>';
+
+  // Create input box setup
+  const inputContainer = document.createElement('span');
+  inputContainer.style.cursor = 'pointer';
+
+  const openBracket = document.createElement('span');
+  openBracket.textContent = '[';
 
   const inputSpan = document.createElement('span');
   inputSpan.id = 'user-input';
-  terminalOutput.appendChild(inputSpan);
-  terminalOutput.append(']');
+
+  const closeBracket = document.createElement('span');
+  closeBracket.textContent = ']';
+
+  hiddenInput = document.createElement('input');
+  hiddenInput.type = 'text';
+  hiddenInput.style.position = 'absolute';
+  hiddenInput.style.opacity = 0;
+  hiddenInput.style.height = 0;
+  hiddenInput.style.width = 0;
+  hiddenInput.autocapitalize = 'off';
+  hiddenInput.autocomplete = 'off';
+  hiddenInput.autocorrect = 'off';
+  document.body.appendChild(hiddenInput);
+
+  // Sync text as user types
+  hiddenInput.addEventListener('input', () => {
+    inputSpan.textContent = hiddenInput.value.toUpperCase();
+  });
+
+  // Make the [input] box clickable to trigger keyboard
+  [inputContainer, openBracket, inputSpan, closeBracket].forEach(el => {
+    el.addEventListener('click', () => hiddenInput.focus());
+  });
+
+  inputContainer.appendChild(openBracket);
+  inputContainer.appendChild(inputSpan);
+  inputContainer.appendChild(closeBracket);
+  terminalOutput.appendChild(inputContainer);
   createCursor();
 
-  if (isMobile()) {
-    // Mobile: Create a hidden input to get keyboard input
-    const hiddenInput = document.createElement('input');
-    hiddenInput.type = 'text';
-    hiddenInput.autocapitalize = 'off';
-    hiddenInput.autocorrect = 'off';
-    hiddenInput.spellcheck = false;
-    hiddenInput.style.position = 'fixed';
-    hiddenInput.style.opacity = 0;
-    hiddenInput.style.height = '1px';
-    hiddenInput.style.width = '1px';
-    hiddenInput.style.left = '-9999px';
-    document.body.appendChild(hiddenInput);
-    hiddenInput.focus();
+  let answer = '';
+  function onUserType(e) {
+    if (e.key === 'Enter') {
+      window.removeEventListener('keydown', onUserType);
+      if (cursorElem) cursorElem.remove();
+      terminalOutput.textContent += '\n';
 
-    hiddenInput.addEventListener('input', () => {
-      inputSpan.textContent = hiddenInput.value.toUpperCase();
-    });
+      answer = hiddenInput.value || answer;
+      const input = answer.toLowerCase();
+      const loveWords = ['love', 'ily', 'i love you', 'i love u', 'i forgive', 'ilyt', 'i like you', 'luv', 'lab'];
+      const hateWords = ['never', "don't", "dont", 'wont', 'won’t', 'hate', "can't", 'no', "won't"];
+      const goodbyeWords = ['goodbye', 'bye', 'farewell'];
 
-    hiddenInput.addEventListener('keydown', async (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const answer = hiddenInput.value.toLowerCase();
-        hiddenInput.remove();
-        if (cursorElem) cursorElem.remove();
-        terminalOutput.textContent += '\n';
-        handleAnswer(answer, inputSpan);
+      if (loveWords.some(word => input.includes(word))) {
+        typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
+      } else if (hateWords.some(word => input.includes(word))) {
+        typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
+      } else if (goodbyeWords.some(word => input.includes(word))) {
+        typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
+      } else {
+        createCursor();
       }
-    });
 
-  } else {
-    // PC: listen for keydown, update inputSpan directly
-    let answer = '';
-
-    function onUserType(e) {
-      if (e.key === 'Enter') {
-        window.removeEventListener('keydown', onUserType);
-        if (cursorElem) cursorElem.remove();
-        terminalOutput.textContent += '\n';
-        handleAnswer(answer.toLowerCase(), inputSpan);
-      } else if (e.key === 'Backspace') {
-        e.preventDefault();
-        answer = answer.slice(0, -1);
-        inputSpan.textContent = answer.toUpperCase();
-      } else if (e.key.length === 1) {
-        answer += e.key;
-        inputSpan.textContent = answer.toUpperCase();
-      }
+      setTimeout(async () => {
+        await sleep(2000);
+        glitchOut();
+      }, 1500);
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      answer = answer.slice(0, -1);
+      inputSpan.textContent = answer.toUpperCase();
+      hiddenInput.value = answer;
+    } else if (e.key.length === 1) {
+      answer += e.key;
+      inputSpan.textContent = answer.toUpperCase();
+      hiddenInput.value = answer;
     }
-
-    window.addEventListener('keydown', onUserType);
   }
+
+  window.addEventListener('keydown', onUserType);
+  hiddenInput.focus(); // auto-focus for mobile
 });
-
-async function handleAnswer(input, inputSpan) {
-  const loveWords = ['love', 'ily', 'i love you', 'i love u', 'i forgive', 'ilyt', 'i like you', 'luv', 'lab'];
-  const hateWords = ['never', "don't", "dont", 'wont', 'won’t', 'hate', "can't", 'no', "won't"];
-  const goodbyeWords = ['goodbye', 'bye', 'farewell'];
-
-  if (loveWords.some(word => input.includes(word))) {
-    await typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
-  } else if (hateWords.some(word => input.includes(word))) {
-    await typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
-  } else if (goodbyeWords.some(word => input.includes(word))) {
-    await typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
-  } else {
-    createCursor();
-  }
-
-  setTimeout(async () => {
-    await sleep(2500);  // pause before glitch
-    glitchOut();
-  }, 1500);
-}
 
 async function glitchOut() {
   terminalOutput.textContent = '';
@@ -168,7 +167,7 @@ async function glitchOut() {
         setTimeout(async () => {
           terminalOutput.innerHTML = '';
           await typeWithCursor("THIS DOMAIN HAS BEEN SEIZED BY THE NATIONAL CYBERCRIME BUREAU.\n\nALL LOGS HAVE BEEN ARCHIVED AND REMOVED FOR INVESTIGATION.", 40);
-          downloadFile("Orphan.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
+          downloadFile("remembrance.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
           resolve();
         }, 500);
         return;
