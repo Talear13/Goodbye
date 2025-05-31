@@ -48,8 +48,8 @@ logo.addEventListener('click', async () => {
   terminalScreen.classList.remove('hidden');
   terminalOutput.textContent = '';
 
-  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 90, 'cursor');
-  await sleep(1000);
+  await typeWithCursor(">>THIS IS TALEA SPEAKING. I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 100, 'cursor');
+  await sleep(1010);
   terminalOutput.textContent += '\n';
   await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90, 'cursor');
   terminalOutput.textContent += '\n>>[';
