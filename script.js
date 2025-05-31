@@ -55,6 +55,16 @@ logo.addEventListener('click', async () => {
   terminalOutput.append(']');
   createCursor();
 
+  // Create hidden input field to trigger mobile keyboard
+  const hiddenInput = document.createElement('input');
+  hiddenInput.type = 'text';
+  hiddenInput.style.position = 'absolute';
+  hiddenInput.style.opacity = '0';
+  hiddenInput.style.height = '0';
+  hiddenInput.style.fontSize = '16px'; // Prevent iOS zoom
+  document.body.appendChild(hiddenInput);
+  hiddenInput.focus();
+
   let answer = '';
   function onUserType(e) {
     if (e.key === 'Enter') {
@@ -78,34 +88,34 @@ logo.addEventListener('click', async () => {
       }
 
       setTimeout(async () => {
-        await sleep(2000);  // pause before glitch
+        await sleep(2000);
         glitchOut();
       }, 1500);
     } else if (e.key === 'Backspace') {
       e.preventDefault();
       answer = answer.slice(0, -1);
       inputSpan.textContent = answer.toUpperCase();
+      hiddenInput.value = answer;
     } else if (e.key.length === 1) {
       answer += e.key;
       inputSpan.textContent = answer.toUpperCase();
+      hiddenInput.value = answer;
     }
   }
+
   window.addEventListener('keydown', onUserType);
 });
 
 async function glitchOut() {
-  // Clear and start GOODBYE typing with glitch effect on letters
   terminalOutput.textContent = '';
   await typeWithCursor("GOODBYE.", 630);
 
-  // Glitch scramble effect (letters randomly changing)
   const glitchText = "GOODBYE.";
   for (let i = 0; i < 30; i++) {
     terminalOutput.textContent = '';
     let glitched = '';
     for (let j = 0; j < glitchText.length; j++) {
       if (Math.random() < 0.3) {
-        // random glitch character
         const randomChar = String.fromCharCode(33 + Math.floor(Math.random() * 94));
         glitched += randomChar;
       } else {
@@ -119,9 +129,8 @@ async function glitchOut() {
 
   await sleep(1500);
 
-  // Flood terminal with binary data to fill the screen & scroll down
   let floodCount = 0;
-  const floodMax = 300; // increase for more flood lines
+  const floodMax = 300;
 
   return new Promise(async (resolve) => {
     const interval = setInterval(() => {
