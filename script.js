@@ -45,10 +45,10 @@ logo.addEventListener('click', async () => {
   terminalScreen.classList.remove('hidden');
   terminalOutput.textContent = '';
 
-  await typeWithCursor(">>I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU:(", 90, 'cursor');
+  await typeWithCursor(">> I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 90, 'cursor');
   await sleep(1000);
   terminalOutput.textContent += '\n';
-  await typeWithCursor(">>WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME", 90, 'cursor');
+  await typeWithCursor(">> WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME? I COMPLETELY UNDERSTAND THAT YOU DONT wANT TO FORGIVe ME.", 90, 'cursor');
   terminalOutput.textContent += '\n>>';
 
   // Create input box setup
@@ -105,11 +105,11 @@ logo.addEventListener('click', async () => {
       const goodbyeWords = ['goodbye', 'bye', 'farewell'];
 
       if (loveWords.some(word => input.includes(word))) {
-        typeWithCursor(">>I LOVE YOU", 90, 'cursor-heart', '<3');
+        typeWithCursor(">> I LOVE YOU", 90, 'cursor-heart', '<3');
       } else if (hateWords.some(word => input.includes(word))) {
-        typeWithCursor(">>I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
+        typeWithCursor(">> I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
       } else if (goodbyeWords.some(word => input.includes(word))) {
-        typeWithCursor(">>PLEASE LIVE YOUR LIFE TO THE FULLEST. DONT LET PEOPLE LIKE ME STAND IN YOUR WAY OF BEING HAPPY.", 34, 'cursor-heart', '<3');
+        typeWithCursor(">> THANK YOU.", 34, 'cursor-heart', '<3');
       } else {
         createCursor();
       }
@@ -167,7 +167,7 @@ async function glitchOut() {
         setTimeout(async () => {
           terminalOutput.innerHTML = '';
           await typeWithCursor("THIS DOMAIN HAS BEEN SEIZED BY THE NATIONAL CYBERCRIME BUREAU.\n\nALL LOGS HAVE BEEN ARCHIVED AND REMOVED FOR INVESTIGATION.", 40);
-          downloadFile("remembrance.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
+          downloadFile("GOODBYE.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
           resolve();
         }, 500);
         return;
