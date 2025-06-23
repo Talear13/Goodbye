@@ -45,10 +45,10 @@ logo.addEventListener('click', async () => {
   terminalScreen.classList.remove('hidden');
   terminalOutput.textContent = '';
 
-  await typeWithCursor(">> I'LL MISS YOU. IM SORRY, I WILL NEVER FORGET YOU", 90, 'cursor');
+  await typeWithCursor(">> Hello Layla Gardner. Goodbye Layla Gardner.", 90, 'cursor');
   await sleep(1000);
   terminalOutput.textContent += '\n';
-  await typeWithCursor(">> WILL YOU SAY SOMETHING OR ATLEAST SAY GOODBYE ONE LAST TIME? I COMPLETELY UNDERSTAND THAT YOU DONT wANT TO FORGIVe ME.", 90, 'cursor');
+  await typeWithCursor(">> Tell me you love me.", 90, 'cursor');
   terminalOutput.textContent += '\n>>';
 
   // Create input box setup
@@ -105,7 +105,7 @@ logo.addEventListener('click', async () => {
       const goodbyeWords = ['goodbye', 'bye', 'farewell'];
 
       if (loveWords.some(word => input.includes(word))) {
-        typeWithCursor(">> I LOVE YOU", 90, 'cursor-heart', '<3');
+        typeWithCursor(">> I Love you too", 90, 'cursor-heart', '<3');
       } else if (hateWords.some(word => input.includes(word))) {
         typeWithCursor(">> I'LL STILL LOVE YOU ANYWAY", 90, 'cursor');
       } else if (goodbyeWords.some(word => input.includes(word))) {
@@ -167,7 +167,7 @@ async function glitchOut() {
         setTimeout(async () => {
           terminalOutput.innerHTML = '';
           await typeWithCursor("THIS DOMAIN HAS BEEN SEIZED BY THE NATIONAL CYBERCRIME BUREAU.\n\nALL LOGS HAVE BEEN ARCHIVED AND REMOVED FOR INVESTIGATION.", 40);
-          downloadFile("GOODBYE.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>");
+          downloadFile("GOODBYE.txt", "i love you so much, please dont forget me, and please dont let me forget you.\n\n<?>\n\n- Your needy little nerd.");
           resolve();
         }, 500);
         return;
